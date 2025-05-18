@@ -1,0 +1,76 @@
+
+CREATE DATABASE aula_ddl;
+
+ \c aula_ddl
+
+Criação das tabelas
+CREATE TABLE cidade (
+    nome VARCHAR(80),
+    estado VARCHAR(80) NOT NULL
+);
+
+CREATE TABLE pacientes (
+    codigo SERIAL NOT NULL,
+    nome VARCHAR(80) NOT NULL,
+    sexo CHAR(1) NOT NULL,
+    idade INT NOT NULL,
+    cod_cid INT NOT NULL,
+    CONSTRAINT pk_paciente PRIMARY KEY(cod_cid)
+);
+
+obrigatoriedade na coluna nome da tabela cidade
+ALTER TABLE cidade ALTER COLUMN nome SET NOT NULL;
+
+Renomear a coluna estado da tabela cidade para uf
+ALTER TABLE cidade RENAME COLUMN estado TO uf;
+
+Alterar o tipo da coluna uf da tabela cidade para CHAR(2)
+ALTER TABLE cidade ALTER COLUMN uf TYPE CHAR(2);
+
+Definir que a coluna nome da tabela cidade é chave primária
+ALTER TABLE cidade ADD CONSTRAINT pk_cidade PRIMARY KEY(nome);
+
+Excluir a restrição de chave primária da tabela cidade
+ALTER TABLE cidade DROP CONSTRAINT pk_cidade;
+
+Adicionar a coluna id do tipo SERIAL e obrigatória na tabela cidade
+ALTER TABLE cidade ADD COLUMN id SERIAL NOT NULL;
+
+Definir que a coluna id é chave primária da tabela cidade
+ALTER TABLE cidade ADD CONSTRAINT pk_cidade_id PRIMARY KEY(id);
+
+Renomear a tabela pacientes para paciente
+ALTER TABLE pacientes RENAME TO paciente;
+
+Adicionar restrição de verificação para a coluna sexo permitindo apenas M ou W
+ALTER TABLE paciente ADD CONSTRAINT chk_sexo_mw CHECK (sexo IN ('M', 'W'));
+
+Excluir a restrição chk_sexo_mw
+ALTER TABLE paciente DROP CONSTRAINT chk_sexo_mw;
+
+Adicionar nova restrição permitindo apenas F ou M
+ALTER TABLE paciente ADD CONSTRAINT chk_sexo_fm CHECK (sexo IN ('F', 'M'));
+
+Alterar a chave primária da tabela paciente para a coluna codigo
+ALTER TABLE paciente DROP CONSTRAINT pk_paciente;
+ALTER TABLE paciente ADD CONSTRAINT pk_paciente_codigo PRIMARY KEY(codigo);
+
+Tirar a obrigatoriedade de informar a cidade dos pacientes
+ALTER TABLE paciente ALTER COLUMN cod_cid DROP NOT NULL;
+
+Remover a coluna idade da tabela paciente
+ALTER TABLE paciente DROP COLUMN idade;
+
+Adicionar restrição de chave estrangeira errada (codigo como chave estrangeira)
+ALTER TABLE paciente ADD CONSTRAINT fk_codigo_cidade FOREIGN KEY (codigo) REFERENCES cidade(id);
+
+Corrigir a chave estrangeira: remover a anterior e adicionar a correta
+ALTER TABLE paciente DROP CONSTRAINT fk_codigo_cidade;
+ALTER TABLE paciente ADD CONSTRAINT fk_cidade FOREIGN KEY (cod_cid) REFERENCES cidade(id);
+
+Comando para excluir a tabela cidade (não funcionará se houver dependência)
+DROP TABLE cidade;
+
+Motivo pelo qual a exclusão pode falhar:
+A tabela cidade está sendo referenciada pela tabela paciente através da chave estrangeira fk_cidade.
+Para excluir cidade, é necessário primeiro remover a restrição de chave estrangeira da tabela paciente ou excluir a tabela paciente.

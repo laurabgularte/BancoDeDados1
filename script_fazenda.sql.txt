@@ -1,0 +1,53 @@
+
+
+CREATE DATABASE fazenda;
+
+
+
+tabela fornecedor
+CREATE TABLE fornecedor (
+    codigo SERIAL PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL,
+    cnpj VARCHAR(18) UNIQUE NOT NULL
+);
+
+-- Criação da tabela inseminador
+CREATE TABLE inseminador (
+    matricula SERIAL PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL
+);
+
+tabela touro
+CREATE TABLE touro (
+    matricula INT NOT NULL,
+    cod_fornecedor INT NOT NULL,
+    PRIMARY KEY (matricula, cod_fornecedor),
+    FOREIGN KEY (cod_fornecedor) REFERENCES fornecedor(codigo)
+);
+
+tabela animal
+CREATE TABLE animal (
+    codigo SERIAL PRIMARY KEY,
+    sexo CHAR(1) NOT NULL,
+    nascimento DATE NOT NULL,
+    situacao VARCHAR(50),
+    cod_mae INT,
+    matr_pai INT,
+    cod_fornecedor_pai INT,
+    FOREIGN KEY (cod_mae) REFERENCES animal(codigo),
+    FOREIGN KEY (matr_pai, cod_fornecedor_pai) REFERENCES touro(matricula, cod_fornecedor)
+);
+
+tabela inseminacao
+CREATE TABLE inseminacao (
+    data DATE NOT NULL,
+    cod_animal INT NOT NULL,
+    matr_touro INT NOT NULL,
+    cod_fornecedor_touro INT NOT NULL,
+    matr_inseminador INT NOT NULL,
+    situacao VARCHAR(50),
+    PRIMARY KEY (data, cod_animal, matr_touro),
+    FOREIGN KEY (cod_animal) REFERENCES animal(codigo),
+    FOREIGN KEY (matr_touro, cod_fornecedor_touro) REFERENCES touro(matricula, cod_fornecedor),
+    FOREIGN KEY (matr_inseminador) REFERENCES inseminador(matricula)
+);
